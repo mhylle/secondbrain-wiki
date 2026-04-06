@@ -1,0 +1,26 @@
+<div class="search-page">
+  <h1 class="search-page__title">Search Results</h1>
+  <p class="search-page__query">
+    @if (query) {
+      {{ results.length }} result{{ results.length !== 1 ? 's' : '' }} for "{{ query }}"
+    }
+  </p>
+
+  <div class="search-page__results">
+    @for (result of results; track result.slug) {
+      <a class="search-page__result" [routerLink]="['/wiki', result.slug]">
+        <div class="search-page__result-header">
+          <span class="search-page__result-type">{{ result.type }}</span>
+        </div>
+        <h3 class="search-page__result-title">{{ result.title }}</h3>
+        @if (result.summary) {
+          <p class="search-page__result-summary">{{ result.summary }}</p>
+        }
+      </a>
+    } @empty {
+      @if (query) {
+        <p class="search-page__empty">No results found for "{{ query }}".</p>
+      }
+    }
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="home">
+  <!-- Stats -->
+  <div class="home__stats">
+    <div class="home__stat">
+      <span class="home__stat-value">{{ pageCount() }}</span>
+      <span class="home__stat-label">Pages</span>
+    </div>
+    <div class="home__stat">
+      <span class="home__stat-value">{{ sourceCount() }}</span>
+      <span class="home__stat-label">Sources</span>
+    </div>
+    @for (type of getTypesWithPages(); track type) {
+      <div class="home__stat">
+        <span class="home__stat-value">{{ pagesByType()[type]?.length || 0 }}</span>
+        <span class="home__stat-label">{{ typeMeta[type].pluralLabel }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Type Quick Links -->
+  <div class="home__types">
+    @for (type of getTypesWithPages(); track type) {
+      <a class="home__type-link" [routerLink]="['/browse', type]" [style.border-left-color]="typeMeta[type].color">
+        <span class="home__type-icon">{{ typeMeta[type].icon }}</span>
+        <span class="home__type-name">{{ typeMeta[type].pluralLabel }}</span>
+        <span class="home__type-count">{{ pagesByType()[type]?.length }}</span>
+      </a>
+    }
+  </div>
+
+  <!-- Recent Pages -->
+  <section class="home__section">
+    <h2 class="home__section-title">Recent Pages</h2>
+    <div class="home__card-grid">
+      @for (page of getRecentPages(); track page.slug) {
+        <app-page-card [page]="page" />
+      }
+    </div>
+  </section>
+
+  <!-- Overview -->
+  @if (overviewHtml()) {
+    <section class="home__section">
+      <h2 class="home__section-title">Knowledge Base Overview</h2>
+      <div class="home__overview">
+        <app-markdown-renderer [html]="overviewHtml()" />
+      </div>
+    </section>
+  }
+</div>

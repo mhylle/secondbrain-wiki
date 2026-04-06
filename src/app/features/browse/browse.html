@@ -1,0 +1,12 @@
+<div class="browse">
+  <h1 class="browse__title">{{ title }}</h1>
+  <p class="browse__count">{{ filteredPages.length }} page{{ filteredPages.length !== 1 ? 's' : '' }}</p>
+
+  <div class="browse__grid">
+    @for (page of filteredPages; track page.slug) {
+      <app-page-card [page]="page" />
+    } @empty {
+      <p class="browse__empty">No pages found.</p>
+    }
+  </div>
+</div>

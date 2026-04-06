@@ -1,0 +1,28 @@
+<form class="search-bar" (submit)="onSubmit($event)">
+  <svg class="search-bar__icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+    <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>
+  <input
+    class="search-bar__input"
+    type="text"
+    placeholder="Search pages..."
+    [value]="inputValue()"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+    aria-label="Search wiki pages" />
+
+  @if (showDropdown() && quickResults.length > 0) {
+    <div class="search-bar__dropdown">
+      @for (result of quickResults; track result.slug) {
+        <button
+          class="search-bar__result"
+          type="button"
+          (mousedown)="navigateTo(result.slug)">
+          <span class="search-bar__result-title">{{ result.title }}</span>
+          <span class="search-bar__result-type">{{ result.type }}</span>
+        </button>
+      }
+    </div>
+  }
+</form>

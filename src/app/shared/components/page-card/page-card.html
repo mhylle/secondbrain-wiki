@@ -1,0 +1,19 @@
+<a class="page-card" [routerLink]="['/wiki', page().slug]">
+  <div class="page-card__header">
+    <span class="page-card__type-badge" [style.background]="typeColor">{{ typeLabel }}</span>
+    @if (page().updated) {
+      <span class="page-card__date">{{ page().updated }}</span>
+    }
+  </div>
+  <h3 class="page-card__title">{{ page().title }}</h3>
+  @if (page().summary) {
+    <p class="page-card__summary">{{ page().summary }}</p>
+  }
+  @if (page().tags.length > 0) {
+    <div class="page-card__tags">
+      @for (tag of page().tags.slice(0, 4); track tag) {
+        <span class="page-card__tag">{{ tag }}</span>
+      }
+    </div>
+  }
+</a>

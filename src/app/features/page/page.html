@@ -1,0 +1,44 @@
+@if (loading()) {
+  <div class="page__loading">Loading...</div>
+} @else if (error()) {
+  <div class="page__error">{{ error() }}</div>
+} @else if (page(); as p) {
+  <article class="page">
+    <!-- Breadcrumb -->
+    <nav class="page__breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">Home</a>
+      <span class="page__breadcrumb-sep">/</span>
+      <a [routerLink]="['/browse', p.frontmatter.type]">{{ typeMeta[p.frontmatter.type]?.pluralLabel }}</a>
+      <span class="page__breadcrumb-sep">/</span>
+      <span class="page__breadcrumb-current">{{ p.frontmatter.title }}</span>
+    </nav>
+
+    <!-- Metadata bar -->
+    <div class="page__meta">
+      <span class="page__type-badge" [style.background]="typeColor">{{ typeLabel }}</span>
+      @if (p.frontmatter.created) {
+        <span class="page__date">Created {{ p.frontmatter.created }}</span>
+      }
+      @if (p.frontmatter.updated && p.frontmatter.updated !== p.frontmatter.created) {
+        <span class="page__date">Updated {{ p.frontmatter.updated }}</span>
+      }
+      @if (p.frontmatter.sources.length > 0) {
+        <span class="page__source-count">{{ p.frontmatter.sources.length }} source{{ p.frontmatter.sources.length > 1 ? 's' : '' }}</span>
+      }
+    </div>
+
+    <!-- Tags -->
+    @if (p.frontmatter.tags.length > 0) {
+      <div class="page__tags">
+        @for (tag of p.frontmatter.tags; track tag) {
+          <app-tag-chip [tag]="tag" />
+        }
+      </div>
+    }
+
+    <!-- Content -->
+    <div class="page__content">
+      <app-markdown-renderer [html]="p.renderedHtml" />
+    </div>
+  </article>
+}

@@ -1,0 +1,78 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  padding: 0 var(--space-lg);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.header__menu-btn {
+  display: none;
+  padding: var(--space-xs);
+  color: var(--color-text-muted);
+  border-radius: var(--border-radius-sm);
+}
+
+.header__menu-btn:hover {
+  background: var(--color-bg-secondary);
+}
+
+.header__title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.header__title:hover {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.header__center {
+  flex: 1;
+  max-width: 400px;
+  margin: 0 var(--space-lg);
+}
+
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.header__github-link {
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  padding: var(--space-xs);
+  border-radius: var(--border-radius-sm);
+  transition: color 0.15s;
+}
+
+.header__github-link:hover {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .header__menu-btn {
+    display: flex;
+  }
+
+  .header__center {
+    display: none;
+  }
+}

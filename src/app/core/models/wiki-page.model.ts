@@ -1,0 +1,62 @@
+export type PageType =
+  | 'source'
+  | 'entity'
+  | 'concept'
+  | 'comparison'
+  | 'question'
+  | 'artifact'
+  | 'overview';
+
+export interface Frontmatter {
+  title: string;
+  type: PageType;
+  created: string;
+  updated: string;
+  sources: string[];
+  tags: string[];
+}
+
+export interface WikiPage {
+  slug: string;
+  path: string;
+  frontmatter: Frontmatter;
+  rawMarkdown: string;
+  renderedHtml: string;
+  outgoingLinks: string[];
+}
+
+export interface WikiPageSummary {
+  slug: string;
+  path: string;
+  title: string;
+  type: PageType;
+  tags: string[];
+  summary: string;
+  updated: string;
+}
+
+export interface GitHubTreeEntry {
+  path: string;
+  mode: string;
+  type: string;
+  sha: string;
+  size?: number;
+  url: string;
+}
+
+export interface GitHubTreeResponse {
+  sha: string;
+  url: string;
+  tree: GitHubTreeEntry[];
+  truncated: boolean;
+}
+
+export const PAGE_TYPE_META: Record<PageType, { label: string; pluralLabel: string; icon: string; color: string }> = {
+  source: { label: 'Source', pluralLabel: 'Sources', icon: '📄', color: 'var(--color-type-source)' },
+  entity: { label: 'Entity', pluralLabel: 'Entities', icon: '🏷️', color: 'var(--color-type-entity)' },
+  concept: { label: 'Concept', pluralLabel: 'Concepts', icon: '💡', color: 'var(--color-type-concept)' },
+  comparison: { label: 'Comparison', pluralLabel: 'Comparisons', icon: '⚖️', color: 'var(--color-type-comparison)' },
+  question: { label: 'Question', pluralLabel: 'Questions', icon: '❓', color: 'var(--color-type-question)' },
+  artifact: { label: 'Artifact', pluralLabel: 'Artifacts', icon: '📊', color: 'var(--color-type-artifact)' },
+  overview: { label: 'Overview', pluralLabel: 'Overviews', icon: '🔭', color: 'var(--color-type-overview)' }
+};

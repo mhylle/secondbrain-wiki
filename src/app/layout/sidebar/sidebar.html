@@ -1,0 +1,38 @@
+<nav class="sidebar" aria-label="Wiki navigation">
+  <div class="sidebar__section">
+    <a class="sidebar__home-link" routerLink="/" routerLinkActive="sidebar__home-link--active" [routerLinkActiveOptions]="{ exact: true }">
+      Home
+    </a>
+  </div>
+
+  @for (type of getTypesWithPages(); track type) {
+    <div class="sidebar__section">
+      <button
+        class="sidebar__type-header"
+        (click)="toggleType(type)"
+        [attr.aria-expanded]="isExpanded(type)">
+        <span class="sidebar__type-icon">{{ typeMeta[type].icon }}</span>
+        <span class="sidebar__type-label">{{ typeMeta[type].pluralLabel }}</span>
+        <span class="sidebar__type-count">{{ pagesByType()[type]?.length || 0 }}</span>
+        <svg class="sidebar__chevron" [class.sidebar__chevron--open]="isExpanded(type)" width="12" height="12" viewBox="0 0 12 12">
+          <path d="M4 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        </svg>
+      </button>
+
+      @if (isExpanded(type)) {
+        <ul class="sidebar__page-list">
+          @for (page of pagesByType()[type]; track page.slug) {
+            <li>
+              <a
+                class="sidebar__page-link"
+                [routerLink]="['/wiki', page.slug]"
+                routerLinkActive="sidebar__page-link--active">
+                {{ page.title }}
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</nav>
