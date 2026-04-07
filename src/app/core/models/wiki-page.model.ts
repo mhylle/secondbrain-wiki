@@ -35,22 +35,6 @@ export interface WikiPageSummary {
   updated: string;
 }
 
-export interface GitHubTreeEntry {
-  path: string;
-  mode: string;
-  type: string;
-  sha: string;
-  size?: number;
-  url: string;
-}
-
-export interface GitHubTreeResponse {
-  sha: string;
-  url: string;
-  tree: GitHubTreeEntry[];
-  truncated: boolean;
-}
-
 export const PAGE_TYPE_META: Record<PageType, { label: string; pluralLabel: string; icon: string; color: string }> = {
   source: { label: 'Source', pluralLabel: 'Sources', icon: '📄', color: 'var(--color-type-source)' },
   entity: { label: 'Entity', pluralLabel: 'Entities', icon: '🏷️', color: 'var(--color-type-entity)' },

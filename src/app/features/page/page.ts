@@ -49,21 +49,16 @@ export class Page implements OnInit, OnDestroy {
     return p ? this.typeMeta[p.frontmatter.type]?.label || p.frontmatter.type : '';
   }
 
-  private async loadPage(slug: string): Promise<void> {
+  private loadPage(slug: string): void {
     this.loading.set(true);
     this.error.set('');
-    try {
-      const page = await this.store.getPage(slug);
-      if (page) {
-        this.page.set(page);
-        this.searchService.enrichWithBody(slug, page.rawMarkdown);
-      } else {
-        this.error.set(`Page "${slug}" not found.`);
-      }
-    } catch (err) {
-      this.error.set('Failed to load page.');
-    } finally {
-      this.loading.set(false);
+    const page = this.store.getPage(slug);
+    if (page) {
+      this.page.set(page);
+      this.searchService.enrichWithBody(slug, page.rawMarkdown);
+    } else {
+      this.error.set(`Page "${slug}" not found.`);
     }
+    this.loading.set(false);
   }
 }

@@ -25,15 +25,12 @@ export class Home implements OnInit {
 
   readonly typeOrder: PageType[] = ['source', 'concept', 'entity', 'comparison'];
 
-  async ngOnInit(): Promise<void> {
-    try {
-      const overviewPage = await this.store.getPage('overview');
-      if (overviewPage) {
-        this.overviewHtml.set(overviewPage.renderedHtml);
-      }
-    } finally {
-      this.loading.set(false);
+  ngOnInit(): void {
+    const overviewPage = this.store.getPage('overview');
+    if (overviewPage) {
+      this.overviewHtml.set(overviewPage.renderedHtml);
     }
+    this.loading.set(false);
   }
 
   getRecentPages(): WikiPageSummary[] {

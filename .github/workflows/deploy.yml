@@ -3,6 +3,9 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  repository_dispatch:
+    types: [wiki-updated]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,6 +28,11 @@ jobs:
           cache: npm
 
       - run: npm ci
+
+      - name: Fetch wiki content from private repo
+        run: node tools/fetch-wiki.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECONDBRAIN_TOKEN }}
 
       - run: npx ng build --configuration production --base-href /secondbrain-wiki/
 

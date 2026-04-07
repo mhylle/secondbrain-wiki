@@ -43,43 +43,18 @@ export class WikiStoreService {
     this.loading.set(true);
 
     try {
-      const paths = await firstValueFrom(this.githubApi.fetchTree());
+      await firstValueFrom(this.githubApi.loadBundle());
+      const paths = this.githubApi.getFilePaths();
       this.buildFilePathMap(paths);
-      await this.buildPageIndex(paths);
+      this.buildPageIndex(paths);
       this.initialized.set(true);
     } finally {
       this.loading.set(false);
     }
   }
 
-  async getPage(slug: string): Promise<WikiPage | null> {
-    const cached = this.loadedPages().get(slug);
-    if (cached) return cached;
-
-    const filePath = this.filePaths.get(slug);
-    if (!filePath) return null;
-
-    const raw = await firstValueFrom(this.githubApi.fetchFileContent(filePath));
-    const { frontmatter, body } = this.parser.parseFrontmatter(raw);
-    const renderedHtml = this.parser.renderToHtml(body);
-    const outgoingLinks = this.parser.extractLinks(raw);
-
-    const page: WikiPage = {
-      slug,
-      path: filePath,
-      frontmatter,
-      rawMarkdown: raw,
-      renderedHtml,
-      outgoingLinks
-    };
-
-    this.loadedPages.update(m => {
-      const updated = new Map(m);
-      updated.set(slug, page);
-      return updated;
-    });
-
-    return page;
+  getPage(slug: string): WikiPage | null {
+    return this.loadedPages().get(slug) ?? null;
   }
 
   getPageSummary(slug: string): WikiPageSummary | undefined {
@@ -100,7 +75,7 @@ export class WikiStoreService {
     }
   }
 
-  private async buildPageIndex(paths: string[]): Promise<void> {
+  private buildPageIndex(paths: string[]): void {
     const summaryPaths = paths.filter(
       p =>
         p !== 'wiki/log.md' &&
@@ -108,47 +83,39 @@ export class WikiStoreService {
         p.startsWith('wiki/')
     );
 
-    const batchSize = 10;
     const index = new Map<string, WikiPageSummary>();
     const pages = new Map<string, WikiPage>();
 
-    for (let i = 0; i < summaryPaths.length; i += batchSize) {
-      const batch = summaryPaths.slice(i, i + batchSize);
-      await Promise.all(
-        batch.map(async filePath => {
-          try {
-            const raw = await firstValueFrom(this.githubApi.fetchFileContent(filePath));
-            const { frontmatter, body } = this.parser.parseFrontmatter(raw);
-            const slug = this.pathToSlug(filePath);
-            if (!slug) return;
+    for (const filePath of summaryPaths) {
+      const raw = this.githubApi.getFileContent(filePath);
+      if (!raw) continue;
 
-            const firstLine = body
-              .split('\n')
-              .find(line => line.trim() && !line.startsWith('#'));
+      const { frontmatter, body } = this.parser.parseFrontmatter(raw);
+      const slug = this.pathToSlug(filePath);
+      if (!slug) continue;
 
-            index.set(slug, {
-              slug,
-              path: filePath,
-              title: frontmatter.title || this.slugToTitle(slug),
-              type: frontmatter.type,
-              tags: frontmatter.tags,
-              summary: firstLine?.trim() || '',
-              updated: frontmatter.updated || frontmatter.created || ''
-            });
+      const firstLine = body
+        .split('\n')
+        .find(line => line.trim() && !line.startsWith('#'));
 
-            pages.set(slug, {
-              slug,
-              path: filePath,
-              frontmatter,
-              rawMarkdown: raw,
-              renderedHtml: this.parser.renderToHtml(body),
-              outgoingLinks: this.parser.extractLinks(raw)
-            });
-          } catch {
-            // skip files that fail to load
-          }
-        })
-      );
+      index.set(slug, {
+        slug,
+        path: filePath,
+        title: frontmatter.title || this.slugToTitle(slug),
+        type: frontmatter.type,
+        tags: frontmatter.tags,
+        summary: firstLine?.trim() || '',
+        updated: frontmatter.updated || frontmatter.created || ''
+      });
+
+      pages.set(slug, {
+        slug,
+        path: filePath,
+        frontmatter,
+        rawMarkdown: raw,
+        renderedHtml: this.parser.renderToHtml(body),
+        outgoingLinks: this.parser.extractLinks(raw)
+      });
     }
 
     this.pageIndex.set(index);
