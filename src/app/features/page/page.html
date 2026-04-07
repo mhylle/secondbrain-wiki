@@ -36,6 +36,18 @@
       </div>
     }
 
+    <!-- Sources -->
+    @if (p.frontmatter.sources.length > 0) {
+      <div class="page__sources">
+        <h4 class="page__sources-title">Sources</h4>
+        <ul class="page__sources-list">
+          @for (source of p.frontmatter.sources; track source) {
+            <li class="page__sources-item">{{ source }}</li>
+          }
+        </ul>
+      </div>
+    }
+
     <!-- Content -->
     <div class="page__content">
       <app-markdown-renderer [html]="p.renderedHtml" />
