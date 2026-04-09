@@ -11,7 +11,7 @@
     <app-search-bar />
   </div>
   <div class="header__right">
-    <a routerLink="/graph" class="header__nav-link" title="Knowledge Graph">
+    <a (click)="navigateToGraph()" class="header__nav-link" title="Knowledge Graph">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <circle cx="5" cy="5" r="2.5" fill="currentColor" opacity="0.7"/>
         <circle cx="15" cy="5" r="2.5" fill="currentColor" opacity="0.7"/>

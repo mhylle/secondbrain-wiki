@@ -30,6 +30,15 @@
 .graph__stats {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.graph__focus-label {
+  font-weight: 600;
+  color: var(--color-accent);
+  cursor: pointer;
 }
 
 .graph__legend {

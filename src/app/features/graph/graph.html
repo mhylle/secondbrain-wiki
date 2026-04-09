@@ -5,7 +5,12 @@
 } @else {
   <div class="graph__container">
     <div class="graph__toolbar">
-      <span class="graph__stats">{{ nodeCount() }} nodes, {{ edgeCount() }} edges</span>
+      <span class="graph__stats">
+        {{ nodeCount() }} nodes, {{ edgeCount() }} edges
+        @if (focusSlug(); as slug) {
+          <a class="graph__focus-label" routerLink="/graph">Focused: {{ slug }} (click to reset)</a>
+        }
+      </span>
       <div class="graph__legend">
         @for (entry of legendTypes; track entry) {
           <span class="graph__legend-item">
