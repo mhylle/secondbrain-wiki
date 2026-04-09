@@ -1,6 +1,18 @@
 <a class="page-card" [routerLink]="['/wiki', page().slug]">
   <div class="page-card__header">
-    <span class="page-card__type-badge" [style.background]="typeColor">{{ typeLabel }}</span>
+    <div class="page-card__badges">
+      <span class="page-card__type-badge" [style.background]="typeColor">{{ typeLabel }}</span>
+      @if (page().confidence; as conf) {
+        <span class="page-card__confidence" [style.color]="confidenceMeta[conf].color" [title]="confidenceMeta[conf].label">
+          {{ confidenceMeta[conf].icon }}
+        </span>
+      }
+      @if (page().tier; as tier) {
+        <span class="page-card__tier" [style.color]="tierMeta[tier].color" [title]="tierMeta[tier].label">
+          {{ tierMeta[tier].icon }}
+        </span>
+      }
+    </div>
     @if (page().updated) {
       <span class="page-card__date">{{ page().updated }}</span>
     }

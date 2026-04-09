@@ -89,7 +89,8 @@
   color: var(--color-text-light);
 }
 
-.page__confidence {
+.page__confidence,
+.page__tier {
   font-size: var(--font-size-sm);
   font-weight: 500;
   text-transform: capitalize;

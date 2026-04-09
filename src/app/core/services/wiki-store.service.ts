@@ -103,6 +103,8 @@ export class WikiStoreService {
         path: filePath,
         title: frontmatter.title || this.slugToTitle(slug),
         type: frontmatter.type,
+        confidence: frontmatter.confidence,
+        tier: frontmatter.tier,
         tags: frontmatter.tags,
         summary: firstLine?.trim() || '',
         updated: frontmatter.updated || frontmatter.created || ''

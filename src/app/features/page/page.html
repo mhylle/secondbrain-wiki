@@ -51,6 +51,11 @@
           {{ confidenceMeta[conf].icon }} {{ conf }}
         </span>
       }
+      @if (p.frontmatter.tier; as tier) {
+        <span class="page__tier" [style.color]="tierMeta[tier].color" [title]="tierMeta[tier].label">
+          {{ tierMeta[tier].icon }} {{ tier }}
+        </span>
+      }
     </div>
 
     <!-- Tags -->

@@ -35,6 +35,13 @@ export const CONFIDENCE_META: Record<ConfidenceLevel, { label: string; color: st
   low: { label: 'Low confidence', color: '#c44', icon: '●' }
 };
 
+export const TIER_META: Record<MemoryTier, { label: string; color: string; icon: string }> = {
+  working: { label: 'Working memory', color: '#888', icon: '⏳' },
+  episodic: { label: 'Episodic memory', color: '#6a8caf', icon: '📝' },
+  semantic: { label: 'Semantic memory', color: '#2a9d5c', icon: '🧠' },
+  procedural: { label: 'Procedural memory', color: '#7b4fc4', icon: '⚙️' }
+};
+
 export interface WikiPage {
   slug: string;
   path: string;
@@ -49,6 +56,8 @@ export interface WikiPageSummary {
   path: string;
   title: string;
   type: PageType;
+  confidence?: ConfidenceLevel;
+  tier?: MemoryTier;
   tags: string[];
   summary: string;
   updated: string;

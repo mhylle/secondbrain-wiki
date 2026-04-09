@@ -21,6 +21,12 @@
   margin-bottom: var(--space-sm);
 }
 
+.page-card__badges {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
 .page-card__type-badge {
   font-size: 0.65rem;
   font-weight: 600;
@@ -29,6 +35,12 @@
   border-radius: 10px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.page-card__confidence,
+.page-card__tier {
+  font-size: 0.7rem;
+  cursor: help;
 }
 
 .page-card__date {
