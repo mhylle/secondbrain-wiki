@@ -8,6 +8,7 @@ export type PageType =
   | 'overview';
 
 export type ConfidenceLevel = 'high' | 'medium' | 'low';
+export type MemoryTier = 'working' | 'episodic' | 'semantic' | 'procedural';
 
 export interface Frontmatter {
   title: string;
@@ -17,6 +18,7 @@ export interface Frontmatter {
   confidence?: ConfidenceLevel;
   superseded_by?: string;
   supersedes?: string;
+  tier?: MemoryTier;
   sources: string[];
   tags: string[];
 }
