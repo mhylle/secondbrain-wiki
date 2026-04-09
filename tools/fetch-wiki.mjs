@@ -19,6 +19,8 @@ const RAW_BASE = 'https://raw.githubusercontent.com';
 const OUTPUT_PATH = 'public/assets/wiki-data.json';
 const GRAPH_OUTPUT_PATH = 'public/assets/graph.json';
 const GRAPH_SOURCE_PATH = '.state/graph.json';
+const SEARCH_OUTPUT_PATH = 'public/assets/search-index.json';
+const SEARCH_SOURCE_PATH = '.state/search-index.json';
 
 import { writeFileSync, mkdirSync } from 'fs';
 import { dirname } from 'path';
@@ -124,6 +126,19 @@ async function main() {
     console.log(`Wrote graph.json to ${GRAPH_OUTPUT_PATH} (${graphSizeKB} KB)`);
   } catch (err) {
     console.warn(`  WARN: failed to fetch graph.json: ${err.message}`);
+  }
+
+  // Fetch search-index.json from .state/
+  console.log('Fetching search-index.json...');
+  try {
+    const searchUrl = `${RAW_BASE}/${OWNER}/${REPO}/${BRANCH}/${SEARCH_SOURCE_PATH}`;
+    const searchContent = await fetchText(searchUrl);
+    mkdirSync(dirname(SEARCH_OUTPUT_PATH), { recursive: true });
+    writeFileSync(SEARCH_OUTPUT_PATH, searchContent);
+    const searchSizeKB = (Buffer.byteLength(searchContent) / 1024).toFixed(1);
+    console.log(`Wrote search-index.json to ${SEARCH_OUTPUT_PATH} (${searchSizeKB} KB)`);
+  } catch (err) {
+    console.warn(`  WARN: failed to fetch search-index.json: ${err.message}`);
   }
 }
 

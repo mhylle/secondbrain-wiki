@@ -1,4 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import MiniSearch from 'minisearch';
 
 import { WikiStoreService } from './wiki-store.service';
@@ -13,9 +14,23 @@ export interface SearchResult {
   tags: string[];
 }
 
+interface PrebuiltEntry {
+  slug: string;
+  title: string;
+  type: string;
+  confidence: string;
+  tags: string[];
+  headings: string[];
+  summary: string;
+  links: string[];
+  sourceCount: number;
+  bodyText: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SearchService {
   private readonly store = inject(WikiStoreService);
+  private readonly http = inject(HttpClient);
   private miniSearch: MiniSearch | null = null;
   private indexedSlugs = new Set<string>();
 
@@ -27,17 +42,35 @@ export class SearchService {
   });
 
   buildIndex(): void {
-    this.miniSearch = new MiniSearch({
-      fields: ['title', 'summary', 'tags', 'body'],
-      storeFields: ['title', 'type', 'summary', 'tags'],
-      searchOptions: {
-        boost: { title: 3, tags: 2, summary: 1.5 },
-        fuzzy: 0.2,
-        prefix: true
-      }
+    // Try pre-built index first, fall back to in-memory
+    this.http.get<PrebuiltEntry[]>('assets/search-index.json').subscribe({
+      next: entries => this.buildFromPrebuilt(entries),
+      error: () => this.buildFromPages()
     });
+  }
 
+  private buildFromPrebuilt(entries: PrebuiltEntry[]): void {
+    this.miniSearch = this.createMiniSearch();
     this.indexedSlugs.clear();
+
+    const docs = entries.map(entry => ({
+      id: entry.slug,
+      title: entry.title,
+      summary: entry.summary,
+      tags: entry.tags.join(' '),
+      headings: entry.headings.join(' '),
+      type: entry.type,
+      body: entry.bodyText
+    }));
+
+    this.miniSearch.addAll(docs);
+    docs.forEach(d => this.indexedSlugs.add(d.id));
+  }
+
+  private buildFromPages(): void {
+    this.miniSearch = this.createMiniSearch();
+    this.indexedSlugs.clear();
+
     const index = this.store.pageIndex();
     const loadedPages = this.store.loadedPages();
     const docs: Array<Record<string, unknown>> = [];
@@ -55,6 +88,7 @@ export class SearchService {
         title: page.title,
         summary: page.summary,
         tags: page.tags.join(' '),
+        headings: '',
         type: page.type,
         body: bodyText
       });
@@ -62,6 +96,18 @@ export class SearchService {
     });
 
     this.miniSearch.addAll(docs);
+  }
+
+  private createMiniSearch(): MiniSearch {
+    return new MiniSearch({
+      fields: ['title', 'summary', 'tags', 'headings', 'body'],
+      storeFields: ['title', 'type', 'summary', 'tags'],
+      searchOptions: {
+        boost: { title: 3, headings: 2, tags: 2, summary: 1.5 },
+        fuzzy: 0.2,
+        prefix: true
+      }
+    });
   }
 
   enrichWithBody(slug: string, bodyText: string): void {
@@ -75,6 +121,7 @@ export class SearchService {
           title: existing['title'] as string,
           summary: existing['summary'] as string,
           tags: existing['tags'] as string,
+          headings: '',
           type: existing['type'] as string,
           body: bodyText
         });
