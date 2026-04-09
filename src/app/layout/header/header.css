@@ -53,6 +53,7 @@
   gap: var(--space-md);
 }
 
+.header__nav-link,
 .header__github-link {
   color: var(--color-text-muted);
   display: flex;
@@ -62,6 +63,7 @@
   transition: color 0.15s;
 }
 
+.header__nav-link:hover,
 .header__github-link:hover {
   color: var(--color-text);
   text-decoration: none;

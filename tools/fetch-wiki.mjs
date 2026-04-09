@@ -17,6 +17,8 @@ const WIKI_DIR = 'wiki';
 const API_BASE = 'https://api.github.com';
 const RAW_BASE = 'https://raw.githubusercontent.com';
 const OUTPUT_PATH = 'public/assets/wiki-data.json';
+const GRAPH_OUTPUT_PATH = 'public/assets/graph.json';
+const GRAPH_SOURCE_PATH = '.state/graph.json';
 
 import { writeFileSync, mkdirSync } from 'fs';
 import { dirname } from 'path';
@@ -110,6 +112,19 @@ async function main() {
   console.log(
     `Done. Wrote ${output.fileCount} files to ${OUTPUT_PATH} (${sizeKB} KB)`
   );
+
+  // Fetch graph.json from .state/
+  console.log('Fetching graph.json...');
+  try {
+    const graphUrl = `${RAW_BASE}/${OWNER}/${REPO}/${BRANCH}/${GRAPH_SOURCE_PATH}`;
+    const graphContent = await fetchText(graphUrl);
+    mkdirSync(dirname(GRAPH_OUTPUT_PATH), { recursive: true });
+    writeFileSync(GRAPH_OUTPUT_PATH, graphContent);
+    const graphSizeKB = (Buffer.byteLength(graphContent) / 1024).toFixed(1);
+    console.log(`Wrote graph.json to ${GRAPH_OUTPUT_PATH} (${graphSizeKB} KB)`);
+  } catch (err) {
+    console.warn(`  WARN: failed to fetch graph.json: ${err.message}`);
+  }
 }
 
 main().catch((err) => {

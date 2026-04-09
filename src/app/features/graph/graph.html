@@ -1,0 +1,31 @@
+@if (loading()) {
+  <div class="graph__loading">Loading graph...</div>
+} @else if (error()) {
+  <div class="graph__error">{{ error() }}</div>
+} @else {
+  <div class="graph__container">
+    <div class="graph__toolbar">
+      <span class="graph__stats">{{ nodeCount() }} nodes, {{ edgeCount() }} edges</span>
+      <div class="graph__legend">
+        @for (entry of legendTypes; track entry) {
+          <span class="graph__legend-item">
+            <span class="graph__legend-dot" [style.background]="typeMeta[entry]?.color"></span>
+            {{ typeMeta[entry]?.label }}
+          </span>
+        }
+      </div>
+    </div>
+    @if (hoveredNode(); as hovered) {
+      <div class="graph__tooltip">
+        <strong>{{ hovered.title }}</strong>
+        <span class="graph__tooltip-type">{{ hovered.type }}</span>
+        @if (hovered.confidence) {
+          <span class="graph__tooltip-confidence">{{ hovered.confidence }} confidence</span>
+        }
+      </div>
+    }
+    <div class="graph__viewport">
+      <svg #graphSvg></svg>
+    </div>
+  </div>
+}

@@ -22,6 +22,11 @@ export const routes: Routes = [
     title: 'Tag — Second Brain'
   },
   {
+    path: 'graph',
+    loadComponent: () => import('./features/graph/graph').then(m => m.Graph),
+    title: 'Knowledge Graph — Second Brain'
+  },
+  {
     path: 'wiki/:slug',
     loadComponent: () => import('./features/page/page').then(m => m.Page),
     title: 'Page — Second Brain'
