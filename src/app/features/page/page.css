@@ -59,6 +59,13 @@
   color: var(--color-text-light);
 }
 
+.page__confidence {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-transform: capitalize;
+  cursor: help;
+}
+
 .page__tags {
   display: flex;
   flex-wrap: wrap;

@@ -7,14 +7,23 @@ export type PageType =
   | 'artifact'
   | 'overview';
 
+export type ConfidenceLevel = 'high' | 'medium' | 'low';
+
 export interface Frontmatter {
   title: string;
   type: PageType;
   created: string;
   updated: string;
+  confidence?: ConfidenceLevel;
   sources: string[];
   tags: string[];
 }
+
+export const CONFIDENCE_META: Record<ConfidenceLevel, { label: string; color: string; icon: string }> = {
+  high: { label: 'High confidence', color: '#2a9d5c', icon: '●' },
+  medium: { label: 'Medium confidence', color: '#d4a017', icon: '●' },
+  low: { label: 'Low confidence', color: '#c44', icon: '●' }
+};
 
 export interface WikiPage {
   slug: string;

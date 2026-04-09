@@ -70,11 +70,13 @@ export class MarkdownParserService {
     }
 
     const parsed = parseYaml(match[1]) as Record<string, unknown>;
+    const confidence = parsed['confidence'] as string | undefined;
     const frontmatter: Frontmatter = {
       title: (parsed['title'] as string) || '',
       type: (parsed['type'] as Frontmatter['type']) || 'concept',
       created: (parsed['created'] as string) || '',
       updated: (parsed['updated'] as string) || '',
+      confidence: confidence === 'high' || confidence === 'medium' || confidence === 'low' ? confidence : undefined,
       sources: Array.isArray(parsed['sources']) ? parsed['sources'] : [],
       tags: Array.isArray(parsed['tags']) ? parsed['tags'] : []
     };

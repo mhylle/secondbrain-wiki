@@ -25,6 +25,11 @@
       @if (p.frontmatter.sources.length > 0) {
         <span class="page__source-count">{{ p.frontmatter.sources.length }} source{{ p.frontmatter.sources.length > 1 ? 's' : '' }}</span>
       }
+      @if (p.frontmatter.confidence; as conf) {
+        <span class="page__confidence" [style.color]="confidenceMeta[conf].color" [title]="confidenceMeta[conf].label">
+          {{ confidenceMeta[conf].icon }} {{ conf }}
+        </span>
+      }
     </div>
 
     <!-- Tags -->

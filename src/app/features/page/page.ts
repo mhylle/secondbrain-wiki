@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 
 import { WikiStoreService } from '../../core/services/wiki-store.service';
 import { SearchService } from '../../core/services/search.service';
-import { WikiPage, PAGE_TYPE_META } from '../../core/models/wiki-page.model';
+import { WikiPage, PAGE_TYPE_META, CONFIDENCE_META } from '../../core/models/wiki-page.model';
 import { MarkdownRenderer } from '../../shared/components/markdown-renderer/markdown-renderer';
 import { TagChip } from '../../shared/components/tag-chip/tag-chip';
 
@@ -25,6 +25,7 @@ export class Page implements OnInit, OnDestroy {
   readonly loading = signal(true);
   readonly error = signal('');
   readonly typeMeta = PAGE_TYPE_META;
+  readonly confidenceMeta = CONFIDENCE_META;
 
   ngOnInit(): void {
     this.routeSub = this.route.paramMap.subscribe(params => {
