@@ -39,16 +39,24 @@ export class SearchService {
 
     this.indexedSlugs.clear();
     const index = this.store.pageIndex();
+    const loadedPages = this.store.loadedPages();
     const docs: Array<Record<string, unknown>> = [];
 
     index.forEach((page, slug) => {
+      const loaded = loadedPages.get(slug);
+      const bodyText = loaded?.rawMarkdown
+        ?.replace(/^---[\s\S]*?---/, '')
+        .replace(/[#*_`\[\]|>]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 2000) || '';
       docs.push({
         id: slug,
         title: page.title,
         summary: page.summary,
         tags: page.tags.join(' '),
         type: page.type,
-        body: ''
+        body: bodyText
       });
       this.indexedSlugs.add(slug);
     });
