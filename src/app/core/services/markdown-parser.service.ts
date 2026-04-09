@@ -80,6 +80,7 @@ export class MarkdownParserService {
       superseded_by: (parsed['superseded_by'] as string) || undefined,
       supersedes: (parsed['supersedes'] as string) || undefined,
       tier: (['working', 'episodic', 'semantic', 'procedural'].includes(parsed['tier'] as string) ? parsed['tier'] as Frontmatter['tier'] : undefined),
+      last_accessed: (parsed['last_accessed'] as string) || undefined,
       relationships: Array.isArray(parsed['relationships'])
         ? (parsed['relationships'] as Array<Record<string, string>>)
             .filter(r => r['target'] && r['type'])

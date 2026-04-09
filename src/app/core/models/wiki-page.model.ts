@@ -24,6 +24,7 @@ export interface Frontmatter {
   superseded_by?: string;
   supersedes?: string;
   tier?: MemoryTier;
+  last_accessed?: string;
   relationships?: Relationship[];
   sources: string[];
   tags: string[];

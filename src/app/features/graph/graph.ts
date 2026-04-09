@@ -20,6 +20,10 @@ interface GraphNode extends d3.SimulationNodeDatum {
   type: string;
   confidence: string;
   tier: string;
+  x?: number;
+  y?: number;
+  fx?: number | null;
+  fy?: number | null;
 }
 
 interface GraphEdge extends d3.SimulationLinkDatum<GraphNode> {
@@ -146,7 +150,7 @@ export class Graph implements OnInit, OnDestroy, AfterViewInit {
     // Zoom
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.2, 4])
-      .on('zoom', (event) => g.attr('transform', event.transform));
+      .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => g.attr('transform', event.transform.toString()));
     svg.call(zoom);
 
     // Edge type colors
@@ -169,9 +173,9 @@ export class Graph implements OnInit, OnDestroy, AfterViewInit {
       .selectAll('line')
       .data(edges)
       .join('line')
-      .attr('stroke', d => edgeColor(d.type))
-      .attr('stroke-width', d => d.type === 'related-to' ? 0.5 : 1.2)
-      .attr('stroke-opacity', d => d.type === 'related-to' ? 0.3 : 0.6);
+      .attr('stroke', (d: GraphEdge) => edgeColor(d.type))
+      .attr('stroke-width', (d: GraphEdge) => d.type === 'related-to' ? 0.5 : 1.2)
+      .attr('stroke-opacity', (d: GraphEdge) => d.type === 'related-to' ? 0.3 : 0.6);
 
     // Focus: determine which nodes are neighbors of the focus node
     const focus = this.focusSlug();
@@ -195,27 +199,28 @@ export class Graph implements OnInit, OnDestroy, AfterViewInit {
       .selectAll('circle')
       .data(nodes)
       .join('circle')
-      .attr('r', d => isFocusNode(d.slug) ? 12 : 4 + Math.sqrt(connCount.get(d.slug) || 1) * 2)
-      .attr('fill', d => this.getTypeColor(d.type))
-      .attr('stroke', d => isFocusNode(d.slug) ? '#c06030' : '#fff')
-      .attr('stroke-width', d => isFocusNode(d.slug) ? 3 : 1.5)
-      .attr('opacity', d => isFocused(d.slug) ? 1 : 0.15)
+      .attr('r', (d: GraphNode) => isFocusNode(d.slug) ? 12 : 4 + Math.sqrt(connCount.get(d.slug) || 1) * 2)
+      .attr('fill', (d: GraphNode) => this.getTypeColor(d.type))
+      .attr('stroke', (d: GraphNode) => isFocusNode(d.slug) ? '#c06030' : '#fff')
+      .attr('stroke-width', (d: GraphNode) => isFocusNode(d.slug) ? 3 : 1.5)
+      .attr('opacity', (d: GraphNode) => isFocused(d.slug) ? 1 : 0.15)
       .attr('cursor', 'pointer')
-      .on('mouseenter', (_event, d) => this.hoveredNode.set(d))
+      .on('mouseenter', (_event: MouseEvent, d: GraphNode) => this.hoveredNode.set(d))
       .on('mouseleave', () => this.hoveredNode.set(null))
-      .on('click', (_event, d) => this.router.navigate(['/wiki', d.slug]))
+      .on('click', (_event: MouseEvent, d: GraphNode) => this.router.navigate(['/wiki', d.slug]))
       .call(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         d3.drag<any, GraphNode>()
-          .on('start', (event, d) => {
+          .on('start', (event: d3.D3DragEvent<Element, GraphNode, GraphNode>, d: GraphNode) => {
             if (!event.active) this.simulation?.alphaTarget(0.3).restart();
             d.fx = d.x;
             d.fy = d.y;
           })
-          .on('drag', (event, d) => {
+          .on('drag', (event: d3.D3DragEvent<Element, GraphNode, GraphNode>, d: GraphNode) => {
             d.fx = event.x;
             d.fy = event.y;
           })
-          .on('end', (event, d) => {
+          .on('end', (event: d3.D3DragEvent<Element, GraphNode, GraphNode>, d: GraphNode) => {
             if (!event.active) this.simulation?.alphaTarget(0);
             d.fx = null;
             d.fy = null;
@@ -224,7 +229,7 @@ export class Graph implements OnInit, OnDestroy, AfterViewInit {
 
     // Apply focus dimming to links
     if (focus) {
-      link.attr('stroke-opacity', d => {
+      link.attr('stroke-opacity', (d: GraphEdge) => {
         const src = (d.source as GraphNode).slug ?? d.source as string;
         const tgt = (d.target as GraphNode).slug ?? d.target as string;
         return (src === focus || tgt === focus) ? 0.8 : 0.05;
@@ -242,13 +247,13 @@ export class Graph implements OnInit, OnDestroy, AfterViewInit {
       .selectAll('text')
       .data(labelNodes)
       .join('text')
-      .text(d => d.title)
-      .attr('font-size', d => isFocusNode(d.slug) ? '12px' : '9px')
-      .attr('font-weight', d => isFocusNode(d.slug) ? '600' : '400')
+      .text((d: GraphNode) => d.title)
+      .attr('font-size', (d: GraphNode) => isFocusNode(d.slug) ? '12px' : '9px')
+      .attr('font-weight', (d: GraphNode) => isFocusNode(d.slug) ? '600' : '400')
       .attr('font-family', 'var(--font-sans)')
       .attr('fill', '#2c2c2c')
       .attr('pointer-events', 'none')
-      .attr('dx', d => 6 + (isFocusNode(d.slug) ? 12 : Math.sqrt(connCount.get(d.slug) || 1) * 2))
+      .attr('dx', (d: GraphNode) => 6 + (isFocusNode(d.slug) ? 12 : Math.sqrt(connCount.get(d.slug) || 1) * 2))
       .attr('dy', 3);
 
     // Simulation
@@ -260,12 +265,12 @@ export class Graph implements OnInit, OnDestroy, AfterViewInit {
       .force('collision', d3.forceCollide().radius(12))
       .on('tick', () => {
         link
-          .attr('x1', d => (d.source as GraphNode).x!)
-          .attr('y1', d => (d.source as GraphNode).y!)
-          .attr('x2', d => (d.target as GraphNode).x!)
-          .attr('y2', d => (d.target as GraphNode).y!);
-        node.attr('cx', d => d.x!).attr('cy', d => d.y!);
-        label.attr('x', d => d.x!).attr('y', d => d.y!);
+          .attr('x1', (d: GraphEdge) => (d.source as GraphNode).x ?? 0)
+          .attr('y1', (d: GraphEdge) => (d.source as GraphNode).y ?? 0)
+          .attr('x2', (d: GraphEdge) => (d.target as GraphNode).x ?? 0)
+          .attr('y2', (d: GraphEdge) => (d.target as GraphNode).y ?? 0);
+        node.attr('cx', (d: GraphNode) => d.x ?? 0).attr('cy', (d: GraphNode) => d.y ?? 0);
+        label.attr('x', (d: GraphNode) => d.x ?? 0).attr('y', (d: GraphNode) => d.y ?? 0);
       });
 
     // Zoom to focused node after simulation stabilizes
