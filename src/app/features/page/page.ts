@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { TitleCasePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 
 import { WikiStoreService } from '../../core/services/wiki-store.service';
@@ -11,7 +12,7 @@ import { TagChip } from '../../shared/components/tag-chip/tag-chip';
 @Component({
   selector: 'app-page',
   standalone: true,
-  imports: [RouterLink, MarkdownRenderer, TagChip],
+  imports: [RouterLink, TitleCasePipe, MarkdownRenderer, TagChip],
   templateUrl: './page.html',
   styleUrl: './page.css'
 })
@@ -48,6 +49,10 @@ export class Page implements OnInit, OnDestroy {
   get typeLabel(): string {
     const p = this.page();
     return p ? this.typeMeta[p.frontmatter.type]?.label || p.frontmatter.type : '';
+  }
+
+  stripWikiLink(value: string): string {
+    return value.replace(/^\[\[/, '').replace(/\]\]$/, '');
   }
 
   private loadPage(slug: string): void {

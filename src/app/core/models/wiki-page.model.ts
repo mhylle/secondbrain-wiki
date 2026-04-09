@@ -15,6 +15,8 @@ export interface Frontmatter {
   created: string;
   updated: string;
   confidence?: ConfidenceLevel;
+  superseded_by?: string;
+  supersedes?: string;
   sources: string[];
   tags: string[];
 }

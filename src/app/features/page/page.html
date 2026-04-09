@@ -4,6 +4,27 @@
   <div class="page__error">{{ error() }}</div>
 } @else if (page(); as p) {
   <article class="page">
+    <!-- Superseded banner -->
+    @if (p.frontmatter.superseded_by) {
+      <div class="page__superseded-banner">
+        This page has been superseded by
+        <a [routerLink]="['/wiki', stripWikiLink(p.frontmatter.superseded_by)]" class="page__superseded-link">
+          {{ stripWikiLink(p.frontmatter.superseded_by) | titlecase }}
+        </a>
+        — content preserved for historical reference.
+      </div>
+    }
+
+    <!-- Supersedes note -->
+    @if (p.frontmatter.supersedes) {
+      <div class="page__supersedes-note">
+        This page supersedes
+        <a [routerLink]="['/wiki', stripWikiLink(p.frontmatter.supersedes)]" class="page__supersedes-link">
+          {{ stripWikiLink(p.frontmatter.supersedes) | titlecase }}
+        </a>
+      </div>
+    }
+
     <!-- Breadcrumb -->
     <nav class="page__breadcrumb" aria-label="Breadcrumb">
       <a routerLink="/">Home</a>

@@ -10,6 +10,36 @@
   color: #c44;
 }
 
+.page__superseded-banner {
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  background: #fef0e0;
+  border: 1px solid #e6a817;
+  border-left: 4px solid #e6a817;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  color: #8a6d0b;
+}
+
+.page__superseded-link {
+  font-weight: 600;
+  color: #7a5f00;
+}
+
+.page__supersedes-note {
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+  background: var(--color-bg-secondary);
+  border-left: 3px solid var(--color-text-light);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.page__supersedes-link {
+  color: var(--color-link);
+}
+
 .page__breadcrumb {
   display: flex;
   align-items: center;

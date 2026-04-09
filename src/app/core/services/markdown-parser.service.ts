@@ -77,6 +77,8 @@ export class MarkdownParserService {
       created: (parsed['created'] as string) || '',
       updated: (parsed['updated'] as string) || '',
       confidence: confidence === 'high' || confidence === 'medium' || confidence === 'low' ? confidence : undefined,
+      superseded_by: (parsed['superseded_by'] as string) || undefined,
+      supersedes: (parsed['supersedes'] as string) || undefined,
       sources: Array.isArray(parsed['sources']) ? parsed['sources'] : [],
       tags: Array.isArray(parsed['tags']) ? parsed['tags'] : []
     };
