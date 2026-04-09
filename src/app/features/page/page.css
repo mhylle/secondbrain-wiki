@@ -141,6 +141,53 @@
   font-size: 0.75rem;
 }
 
+.page__relationships {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--color-type-concept);
+}
+
+.page__relationships-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-sm);
+}
+
+.page__relationships-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.page__relationship {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+
+.page__relationship-type {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-light);
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 8px;
+  border-radius: 8px;
+  text-transform: lowercase;
+  min-width: 80px;
+  text-align: center;
+}
+
+.page__relationship-target {
+  color: var(--color-link);
+}
+
 .page__content {
   margin-top: var(--space-md);
 }

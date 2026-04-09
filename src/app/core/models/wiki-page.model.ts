@@ -10,6 +10,11 @@ export type PageType =
 export type ConfidenceLevel = 'high' | 'medium' | 'low';
 export type MemoryTier = 'working' | 'episodic' | 'semantic' | 'procedural';
 
+export interface Relationship {
+  target: string;
+  type: string;
+}
+
 export interface Frontmatter {
   title: string;
   type: PageType;
@@ -19,6 +24,7 @@ export interface Frontmatter {
   superseded_by?: string;
   supersedes?: string;
   tier?: MemoryTier;
+  relationships?: Relationship[];
   sources: string[];
   tags: string[];
 }
