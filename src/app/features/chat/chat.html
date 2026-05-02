@@ -1,0 +1,109 @@
+<div class="chat">
+  <header class="chat__header">
+    <div class="chat__header-left">
+      <h1 class="chat__title">Chat with the wiki</h1>
+      <p class="chat__subtitle">
+        Ask anything. The agent reads the wiki via four read-only tools and cites the pages it used.
+      </p>
+    </div>
+    <div class="chat__status" [attr.data-state]="backendStatus()">
+      @if (backendStatus() === 'online' && backendInfo(); as info) {
+        <span class="chat__status-dot"></span>
+        <span>backend online · {{ info.wiki_pages }} pages · {{ info.model }}</span>
+      } @else if (backendStatus() === 'offline') {
+        <span class="chat__status-dot"></span>
+        <span>backend offline — start <code>chat-backend</code> to enable chat</span>
+      } @else {
+        <span class="chat__status-dot"></span>
+        <span>checking backend…</span>
+      }
+    </div>
+  </header>
+
+  <div class="chat__transcript" #scrollContainer>
+    @if (turns().length === 0 && backendStatus() === 'online') {
+      <div class="chat__empty">
+        <p>Try one of these:</p>
+        <ul>
+          <li><button (click)="draft.set('Summarize the harness paradigm in 3 bullet points'); send()">Summarize the harness paradigm in 3 bullet points</button></li>
+          <li><button (click)="draft.set('What is the difference between a harness and a framework?'); send()">What is the difference between a harness and a framework?</button></li>
+          <li><button (click)="draft.set('Which pages discuss MCP integration?'); send()">Which pages discuss MCP integration?</button></li>
+          <li><button (click)="draft.set('Find the most-cited concept in the wiki and explain why it is central'); send()">Find the most-cited concept and explain why it&rsquo;s central</button></li>
+        </ul>
+      </div>
+    }
+
+    @for (turn of turns(); track $index) {
+      <div class="chat__turn" [attr.data-role]="turn.role">
+        @if (turn.role === 'user') {
+          <div class="chat__turn-bubble chat__turn-bubble--user">{{ turn.content }}</div>
+        } @else {
+          <div class="chat__turn-bubble chat__turn-bubble--assistant">
+            @if (turn.toolCalls && turn.toolCalls.length > 0) {
+              <details class="chat__tools" [open]="streaming() && $last">
+                <summary>
+                  <span class="chat__tools-icon"></span>
+                  <span>{{ turn.toolCalls.length }} tool {{ turn.toolCalls.length === 1 ? 'call' : 'calls' }}</span>
+                </summary>
+                <ol class="chat__tools-list">
+                  @for (call of turn.toolCalls; track call.toolUseId) {
+                    <li class="chat__tool">
+                      <div class="chat__tool-head">
+                        <code>{{ call.tool }}</code>
+                        @if (call.input && formatJson(call.input) !== '{}') {
+                          <code class="chat__tool-input">{{ formatJson(call.input) }}</code>
+                        }
+                      </div>
+                      @if (call.result !== undefined) {
+                        <div class="chat__tool-result">{{ shortPreview(call.result) }}</div>
+                      } @else {
+                        <div class="chat__tool-pending">running…</div>
+                      }
+                    </li>
+                  }
+                </ol>
+              </details>
+            }
+            @if (turn.html) {
+              <app-markdown-renderer [html]="turn.html"></app-markdown-renderer>
+            } @else if (streaming() && $last) {
+              <div class="chat__thinking">
+                <span class="chat__dot"></span><span class="chat__dot"></span><span class="chat__dot"></span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (lastStats(); as s) {
+      <div class="chat__stats">
+        {{ (s.durationMs / 1000).toFixed(1) }}s
+        @if (s.tokens) {
+          · {{ s.tokens.input }} in · {{ s.tokens.output }} out
+        }
+        @if (s.apiEquivalentCostUsd) {
+          · ${{ s.apiEquivalentCostUsd.toFixed(4) }} API-equivalent (subscription billed)
+        }
+      </div>
+    }
+  </div>
+
+  <form class="chat__input-bar" (submit)="$event.preventDefault(); send()">
+    <textarea
+      #inputArea
+      class="chat__input"
+      [ngModel]="draft()"
+      (ngModelChange)="draft.set($event)"
+      [ngModelOptions]="{ standalone: true }"
+      placeholder="Ask the wiki anything…"
+      rows="2"
+      [disabled]="backendStatus() === 'offline'"
+      (keydown)="onTextareaKeydown($event)"></textarea>
+    @if (streaming()) {
+      <button type="button" class="chat__btn chat__btn--cancel" (click)="cancel()">Stop</button>
+    } @else {
+      <button type="submit" class="chat__btn chat__btn--send" [disabled]="!canSubmit()">Send</button>
+    }
+  </form>
+</div>

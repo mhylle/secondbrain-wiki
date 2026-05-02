@@ -11,6 +11,15 @@
     <app-search-bar />
   </div>
   <div class="header__right">
+    <a routerLink="/chat" class="header__nav-link" title="Chat with the wiki">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M3 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8l-3 3v-3H5a2 2 0 0 1-2-2V5z"
+              stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.85"/>
+        <circle cx="7.5" cy="8" r="0.9" fill="currentColor"/>
+        <circle cx="10" cy="8" r="0.9" fill="currentColor"/>
+        <circle cx="12.5" cy="8" r="0.9" fill="currentColor"/>
+      </svg>
+    </a>
     <a (click)="navigateToGraph()" class="header__nav-link" title="Knowledge Graph">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <circle cx="5" cy="5" r="2.5" fill="currentColor" opacity="0.7"/>
