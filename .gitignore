@@ -39,8 +39,10 @@ testem.log
 /typings
 __screenshots__/
 
-# Generated wiki data (fetched at build time from private repo)
+# Generated wiki data (produced by `npm run prefetch` from the private repo)
 /public/assets/wiki-data.json
+/public/assets/search-index.json
+/public/assets/graph.json
 
 # System files
 .DS_Store
