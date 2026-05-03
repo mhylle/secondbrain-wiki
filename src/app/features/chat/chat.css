@@ -22,6 +22,118 @@
   min-width: 0;
 }
 
+.chat__header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-sm);
+}
+
+.chat__actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.chat__action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.chat__action-btn:hover {
+  border-color: var(--color-link);
+  color: var(--color-link);
+}
+
+.chat__action-btn--primary {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+.chat__action-btn--primary:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+  color: #fff;
+}
+
+.chat__history {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--space-md);
+  max-height: 280px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.chat__history-empty {
+  padding: var(--space-md);
+  margin: 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.chat__history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chat__history-item {
+  border-bottom: 1px solid var(--color-border);
+}
+.chat__history-item:last-child { border-bottom: none; }
+
+.chat__history-item button {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-family: inherit;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: background 0.15s;
+}
+
+.chat__history-item button:hover {
+  background: var(--color-bg-secondary);
+}
+
+.chat__history-item--active button {
+  background: var(--color-bg-secondary);
+  border-left: 3px solid var(--color-accent);
+}
+
+.chat__history-title {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.chat__history-meta {
+  font-size: 0.7rem;
+  color: var(--color-text-light);
+  font-family: var(--font-mono);
+}
+
 .chat__title {
   font-size: var(--font-size-xl);
   font-weight: 600;

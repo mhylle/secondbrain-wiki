@@ -25,6 +25,36 @@ export interface ChatStreamHandlers {
   onClose: () => void;
 }
 
+export interface PersistedToolCall {
+  toolUseId: string;
+  tool: string;
+  input?: unknown;
+  result?: unknown;
+}
+
+export interface PersistedMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  toolCalls?: PersistedToolCall[];
+}
+
+export interface SessionSummary {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  messageCount: number;
+}
+
+export interface SessionHistory {
+  session_id: string;
+  title?: string;
+  created_at?: string;
+  updated_at?: string;
+  messages: PersistedMessage[];
+  exists: boolean;
+}
+
 /**
  * Talks to the local chat-backend (`localhost:8787` by default). POST /chat
  * with `{ session_id, message }`, parse the SSE response stream, dispatch
@@ -85,6 +115,29 @@ export class ChatService {
       const res = await fetch(`${this.backendUrl}/health`);
       if (!res.ok) return null;
       return (await res.json()) as { ok: boolean; wiki_pages: number; model: string };
+    } catch {
+      return null;
+    }
+  }
+
+  /** List all persisted chat sessions, newest first. */
+  async listSessions(): Promise<SessionSummary[]> {
+    try {
+      const res = await fetch(`${this.backendUrl}/sessions`);
+      if (!res.ok) return [];
+      const body = (await res.json()) as { sessions: SessionSummary[] };
+      return body.sessions ?? [];
+    } catch {
+      return [];
+    }
+  }
+
+  /** Load the full message history for a previously-saved session. */
+  async loadHistory(sessionId: string): Promise<SessionHistory | null> {
+    try {
+      const res = await fetch(`${this.backendUrl}/history/${encodeURIComponent(sessionId)}`);
+      if (!res.ok) return null;
+      return (await res.json()) as SessionHistory;
     } catch {
       return null;
     }

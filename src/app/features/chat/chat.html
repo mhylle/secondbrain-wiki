@@ -6,19 +6,54 @@
         Ask anything. The agent reads the wiki via four read-only tools and cites the pages it used.
       </p>
     </div>
-    <div class="chat__status" [attr.data-state]="backendStatus()">
-      @if (backendStatus() === 'online' && backendInfo(); as info) {
-        <span class="chat__status-dot"></span>
-        <span>backend online · {{ info.wiki_pages }} pages · {{ info.model }}</span>
-      } @else if (backendStatus() === 'offline') {
-        <span class="chat__status-dot"></span>
-        <span>backend offline — start <code>chat-backend</code> to enable chat</span>
-      } @else {
-        <span class="chat__status-dot"></span>
-        <span>checking backend…</span>
-      }
+    <div class="chat__header-right">
+      <div class="chat__status" [attr.data-state]="backendStatus()">
+        @if (backendStatus() === 'online' && backendInfo(); as info) {
+          <span class="chat__status-dot"></span>
+          <span>backend online · {{ info.wiki_pages }} pages · {{ info.model }}</span>
+        } @else if (backendStatus() === 'offline') {
+          <span class="chat__status-dot"></span>
+          <span>backend offline — start <code>chat-backend</code> to enable chat</span>
+        } @else {
+          <span class="chat__status-dot"></span>
+          <span>checking backend…</span>
+        }
+      </div>
+      <div class="chat__actions">
+        <button type="button" class="chat__action-btn" (click)="toggleHistory()" [attr.aria-expanded]="historyOpen()" title="Show recent chats">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M2 4h12M2 8h12M2 12h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span>History ({{ history().length }})</span>
+        </button>
+        <button type="button" class="chat__action-btn chat__action-btn--primary" (click)="newChat()" title="Start a new chat">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span>New chat</span>
+        </button>
+      </div>
     </div>
   </header>
+
+  @if (historyOpen()) {
+    <div class="chat__history">
+      @if (history().length === 0) {
+        <p class="chat__history-empty">No saved chats yet — your conversations will show up here.</p>
+      } @else {
+        <ul class="chat__history-list">
+          @for (s of history(); track s.id) {
+            <li class="chat__history-item" [class.chat__history-item--active]="s.id === sessionId">
+              <button type="button" (click)="openSession(s.id)">
+                <span class="chat__history-title">{{ s.title }}</span>
+                <span class="chat__history-meta">{{ s.messageCount }} msg · {{ relativeTime(s.updatedAt) }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
 
   <div class="chat__transcript" #scrollContainer>
     @if (turns().length === 0 && backendStatus() === 'online') {
@@ -28,7 +63,7 @@
           <li><button (click)="draft.set('Summarize the harness paradigm in 3 bullet points'); send()">Summarize the harness paradigm in 3 bullet points</button></li>
           <li><button (click)="draft.set('What is the difference between a harness and a framework?'); send()">What is the difference between a harness and a framework?</button></li>
           <li><button (click)="draft.set('Which pages discuss MCP integration?'); send()">Which pages discuss MCP integration?</button></li>
-          <li><button (click)="draft.set('Find the most-cited concept in the wiki and explain why it is central'); send()">Find the most-cited concept and explain why it&rsquo;s central</button></li>
+          <li><button (click)="draft.set('Find the most-cited concept and explain why it is central'); send()">Find the most-cited concept and explain why it&rsquo;s central</button></li>
         </ul>
       </div>
     }

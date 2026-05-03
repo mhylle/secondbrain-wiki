@@ -1,14 +1,20 @@
 import { Component, ElementRef, ViewChild, computed, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { ChatEvent, ChatService } from '../../core/services/chat.service';
+import {
+  ChatEvent,
+  ChatService,
+  PersistedMessage,
+  PersistedToolCall,
+  SessionSummary
+} from '../../core/services/chat.service';
 import { MarkdownParserService } from '../../core/services/markdown-parser.service';
 import { MarkdownRenderer } from '../../shared/components/markdown-renderer/markdown-renderer';
 
 interface ToolCall {
   toolUseId: string;
   tool: string;
-  input: unknown;
+  input?: unknown;
   result?: unknown;
 }
 
@@ -26,6 +32,12 @@ interface SessionStats {
   durationMs: number;
   apiEquivalentCostUsd?: number;
   tokens?: { input: number; output: number };
+}
+
+const STORAGE_KEY = 'secondbrain-chat:lastSessionId';
+
+function newSessionId(): string {
+  return `chat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 @Component({
@@ -49,8 +61,12 @@ export class Chat implements OnInit {
   readonly backendInfo = signal<{ wiki_pages: number; model: string } | null>(null);
   readonly lastStats = signal<SessionStats | null>(null);
 
+  /** Recent saved sessions (loaded once at mount + after each new message). */
+  readonly history = signal<SessionSummary[]>([]);
+  readonly historyOpen = signal(false);
+
   /** Stable session ID so the backend can resume across messages. */
-  private readonly sessionId = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  sessionId = newSessionId();
 
   private currentController: AbortController | null = null;
 
@@ -61,6 +77,14 @@ export class Chat implements OnInit {
     if (health) {
       this.backendStatus.set('online');
       this.backendInfo.set({ wiki_pages: health.wiki_pages, model: health.model });
+      await this.refreshHistory();
+
+      // Restore the last session if localStorage has one and it still exists.
+      const stored = this.readStoredSessionId();
+      if (stored) {
+        const loaded = await this.loadSession(stored);
+        if (!loaded) this.clearStoredSessionId();
+      }
     } else {
       this.backendStatus.set('offline');
     }
@@ -76,6 +100,7 @@ export class Chat implements OnInit {
     this.appendTurn(assistantTurn);
     this.scrollToBottom();
     this.streaming.set(true);
+    this.writeStoredSessionId(this.sessionId);
 
     this.currentController = this.chatService.sendMessage(this.sessionId, text, {
       onEvent: (evt: ChatEvent) => this.onEvent(evt, assistantTurn),
@@ -83,12 +108,84 @@ export class Chat implements OnInit {
         this.streaming.set(false);
         this.currentController = null;
         this.scrollToBottom();
+        // Refresh history list so the new/updated session shows up immediately.
+        void this.refreshHistory();
       }
     });
   }
 
   cancel(): void {
     this.currentController?.abort();
+  }
+
+  /** Start a fresh chat. Old chat stays persisted; user can return via history. */
+  newChat(): void {
+    if (this.streaming()) this.cancel();
+    this.sessionId = newSessionId();
+    this.turns.set([]);
+    this.lastStats.set(null);
+    this.clearStoredSessionId();
+    this.historyOpen.set(false);
+  }
+
+  async openSession(id: string): Promise<void> {
+    if (this.streaming()) this.cancel();
+    await this.loadSession(id);
+    this.historyOpen.set(false);
+  }
+
+  toggleHistory(): void {
+    this.historyOpen.set(!this.historyOpen());
+    if (this.historyOpen()) void this.refreshHistory();
+  }
+
+  private async refreshHistory(): Promise<void> {
+    const list = await this.chatService.listSessions();
+    this.history.set(list);
+  }
+
+  /** Load a persisted session into the current view. Returns true on success. */
+  private async loadSession(id: string): Promise<boolean> {
+    const data = await this.chatService.loadHistory(id);
+    if (!data || !data.exists) return false;
+    this.sessionId = id;
+    const restored: ChatTurn[] = data.messages.map(m => this.persistedToTurn(m));
+    this.turns.set(restored);
+    this.lastStats.set(null);
+    this.writeStoredSessionId(id);
+    this.scrollToBottom();
+    return true;
+  }
+
+  private persistedToTurn(m: PersistedMessage): ChatTurn {
+    if (m.role === 'user') {
+      return { role: 'user', content: m.content };
+    }
+    return {
+      role: 'assistant',
+      content: m.content,
+      html: m.content ? this.markdownParser.renderToHtml(m.content) : '',
+      toolCalls: m.toolCalls?.map((tc: PersistedToolCall) => ({
+        toolUseId: tc.toolUseId,
+        tool: tc.tool,
+        input: tc.input,
+        result: tc.result
+      }))
+    };
+  }
+
+  private readStoredSessionId(): string | null {
+    try {
+      return localStorage.getItem(STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  }
+  private writeStoredSessionId(id: string): void {
+    try { localStorage.setItem(STORAGE_KEY, id); } catch { /* private mode etc. */ }
+  }
+  private clearStoredSessionId(): void {
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
   }
 
   /** Mutate the in-progress assistant turn as events stream in. */
@@ -100,7 +197,6 @@ export class Chat implements OnInit {
 
       case 'text':
         assistant.content += evt.text;
-        // Re-render markdown each time. Cheap at our volumes.
         assistant.html = this.markdownParser.renderToHtml(assistant.content);
         this.refreshTurns();
         this.scrollToBottom();
@@ -188,5 +284,20 @@ export class Chat implements OnInit {
     const text = this.formatJson(result);
     if (text.length <= max) return text;
     return text.slice(0, max) + '…';
+  }
+
+  /** Format an ISO timestamp as a friendly relative date. */
+  relativeTime(iso: string): string {
+    const then = new Date(iso).getTime();
+    if (!Number.isFinite(then)) return '';
+    const ms = Date.now() - then;
+    const min = Math.floor(ms / 60_000);
+    if (min < 1) return 'just now';
+    if (min < 60) return `${min}m ago`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `${hr}h ago`;
+    const d = Math.floor(hr / 24);
+    if (d < 7) return `${d}d ago`;
+    return new Date(iso).toLocaleDateString();
   }
 }

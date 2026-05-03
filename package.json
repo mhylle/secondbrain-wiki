@@ -4,8 +4,11 @@
   "scripts": {
     "ng": "ng",
     "prefetch": "node tools/fetch-wiki.mjs",
+    "prefetch:local": "node tools/fetch-wiki-local.mjs",
     "start": "npm run prefetch && ng serve",
+    "start:local": "npm run prefetch:local && ng serve",
     "build": "npm run prefetch && ng build",
+    "build:local": "npm run prefetch:local && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
